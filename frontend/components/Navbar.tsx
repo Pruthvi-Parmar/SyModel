@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Link } from "react-router-dom"
+import { motion } from "framer-motion"
 import { Menu, X, Wallet } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { WalletModal } from "@/components/WalletModal"
@@ -19,6 +20,10 @@ export function Navbar() {
     { href: "/about", label: "About" },
   ]
 
+  const handleWalletClick = () => {
+    setShowWalletModal(true)
+  }
+
   return (
     <>
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -26,10 +31,13 @@ export function Navbar() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-9 h-9 rounded-lg border border-border bg-muted/30 flex items-center justify-center">
-                <img src="/logosmall.png" alt="Synapse Model logo" className="w-6 h-6 object-contain" loading="lazy" />
-              </div>
-              <span className="font-semibold text-lg text-foreground">Synapse Model</span>
+              <motion.div
+                whileHover={{ scale: 1.08, rotate: 6 }}
+                className="w-10 h-10 bg-gradient-to-br from-white-500 via-white-600 to-blue-700 rounded-lg flex items-center justify-center shadow-xl ring-2 ring-sky-400/50 border border-white/20"
+              >
+                <img src="/logosmall.png" alt="Synapse Model logo" className="w-9 h-9 object-contain" loading="lazy" />
+              </motion.div>
+              <span className="font-bold text-xl text-foreground">Synapse Model</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -67,31 +75,36 @@ export function Navbar() {
 
           {/* Mobile Navigation */}
           {isOpen && (
-              <div className="md:hidden py-4 border-t border-border">
-                <div className="flex flex-col space-y-4">
-                  {navItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      to={item.href}
-                      className="text-muted-foreground hover:text-foreground transition-colors duration-200"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="md:hidden py-4 border-t border-border"
+            >
+              <div className="flex flex-col space-y-4">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
 
-                  <div className="flex flex-col space-y-2">
-                    <Button
-                      variant={isConnected ? "secondary" : "default"}
-                      onClick={() => setShowWalletModal(true)}
-                      className="flex items-center space-x-2"
-                    >
-                      <Wallet className="w-4 h-4" />
-                      <span>{isConnected ? formatAddress() : "Connect Wallet"}</span>
-                    </Button>
-                  </div>
+                <div className="flex flex-col space-y-2">
+                  <Button
+                    variant={isConnected ? "secondary" : "default"}
+                    onClick={() => setShowWalletModal(true)}
+                    className="flex items-center space-x-2"
+                  >
+                    <Wallet className="w-4 h-4" />
+                    <span>{isConnected ? formatAddress() : "Connect Wallet"}</span>
+                  </Button>
                 </div>
               </div>
+            </motion.div>
           )}
         </div>
       </nav>
