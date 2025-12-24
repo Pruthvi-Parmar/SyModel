@@ -374,7 +374,7 @@ export default function About() {
                 <Card className="bg-card/95 backdrop-blur-xl border border-border/50 hover:border-primary/20 transition-all">
                   <CardContent className="pt-6">
                     <div className="flex items-start space-x-4">
-                      <principle.icon className="w-8 h-8 text-primary mt-1 flex-shrink-0 icon-bounce" />
+                      <principle.icon className="w-8 h-8 text-primary mt-1 shrink-0 icon-bounce" />
                       <div>
                         <h4 className="text-lg font-semibold mb-2">{principle.title}</h4>
                         <p className="text-muted-foreground">{principle.description}</p>

@@ -83,9 +83,9 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                   </div>
 
                   {!hasProvider ? (
-                    <div className="text-xs text-muted-foreground text-center">
+                  <div className="text-xs text-muted-foreground text-center">
                       MetaMask not detected. Please install MetaMask and refresh.
-                    </div>
+                  </div>
                   ) : (
                     <Button className="w-full" onClick={() => connectWallet()}>
                       Connect MetaMask

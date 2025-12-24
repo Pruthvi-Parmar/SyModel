@@ -56,7 +56,7 @@ export function UploadForm() {
 
   // Walrus constants
   const WALRUS_PUBLISHER = "https://publisher.walrus-testnet.walrus.space"
-  const MAX_SIZE = 10 * 1024 * 1024 // 10MB
+  const MAX_SIZE = 50 * 1024 * 1024 // 10MB
 
   // Helper function to format file size
   const formatFileSize = (bytes: number) => {
@@ -390,7 +390,7 @@ export function UploadForm() {
               onFilesChange={handleFileChange}
               accept=".zip"
               maxFiles={1}
-              maxSize={10 * 1024 * 1024} // 10MB
+              maxSize={50 * 1024 * 1024} // 10MB
             />
             <p className="text-xs text-muted-foreground mt-1">
               Upload your model as a single .zip file containing all model assets. Maximum size: 10MB. Upload starts automatically when you select a file.

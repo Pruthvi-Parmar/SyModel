@@ -24,7 +24,7 @@ export function VideoEmbed() {
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="relative aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-chart-1/20 border border-border/50"
+          className="relative aspect-video rounded-2xl overflow-hidden bg-linear-to-br from-primary/20 to-chart-1/20 border border-border/50"
         >
           <iframe
             src="https://www.youtube.com/embed/YVkswhpFN3Q"

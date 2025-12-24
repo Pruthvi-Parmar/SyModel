@@ -28,6 +28,11 @@ export default function Playground() {
   const [timeRemaining, setTimeRemaining] = useState<number>(0)
   const [instanceCreatedAt, setInstanceCreatedAt] = useState<number | null>(null)
 
+  const instanceId = instanceData?.instance_id || instanceData?.instanceId
+  const instanceStatus: string | undefined = instanceData?.status
+  const instancePublicIp = instanceData?.public_ip || instanceData?.publicIp
+  const isInstanceReady = Boolean(instanceId && instanceStatus === "ready" && instancePublicIp)
+
   useEffect(() => {
     if (!modelsLoading && models.length > 0 && id) {
       const foundModel = models.find(m => m.id === id)
@@ -39,7 +44,7 @@ export default function Playground() {
 
   // Manual instance creation function
   const handleCreateInstance = async () => {
-    if (!model || !model.objectId || instanceData) return
+    if (!model || instanceData) return
 
     setIsCreatingInstance(true)
     setInstanceError(null)
@@ -51,13 +56,21 @@ export default function Playground() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          blob_id: model.objectId
+          // Preferred: send real Walrus blob id + object id
+          blob_id: model.blobId || model.id,
+          object_id: model.objectId || null,
         }),
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.detail || 'Failed to create instance')
+        let msg = 'Failed to create instance'
+        try {
+          const error = await response.json()
+          msg = error?.error || error?.detail || msg
+        } catch {
+          // ignore
+        }
+        throw new Error(msg)
       }
 
       const data = await response.json()
@@ -73,15 +86,52 @@ export default function Playground() {
     }
   }
 
+  // Poll backend for instance readiness
+  useEffect(() => {
+    if (!instanceId) return
+
+    let cancelled = false
+    let interval: ReturnType<typeof setInterval> | null = null
+    const poll = async () => {
+      try {
+        const resp = await fetch(`${BACKEND_API_URL}/api/instances/${instanceId}`)
+        if (resp.status === 404) {
+          if (cancelled) return
+          cancelled = true
+          if (interval) clearInterval(interval)
+          setInstanceError("Instance not found (it may have been terminated). Please create a new instance.")
+          setInstanceData(null)
+          setInstanceCreatedAt(null)
+          setTimeRemaining(0)
+          return
+        }
+        if (!resp.ok) return
+        const latest = await resp.json()
+        if (cancelled) return
+        setInstanceData((prev: any) => ({ ...(prev || {}), ...(latest || {}) }))
+      } catch {
+        // ignore transient errors
+      }
+    }
+
+    interval = setInterval(poll, 5000)
+    poll()
+    return () => {
+      cancelled = true
+      if (interval) clearInterval(interval)
+    }
+  }, [instanceId])
+
   // Manual instance deletion function
   const handleDeleteInstance = async () => {
-    if (!instanceData || !instanceData.instance_id) return
+    const instanceId = instanceData?.instance_id || instanceData?.instanceId
+    if (!instanceId) return
 
     setIsDeletingInstance(true)
     setInstanceError(null)
 
     try {
-      const response = await fetch(`${BACKEND_API_URL}/api/instances/${instanceData.instance_id}`, {
+      const response = await fetch(`${BACKEND_API_URL}/api/instances/${instanceId}`, {
         method: 'DELETE',
       })
 
@@ -90,7 +140,7 @@ export default function Playground() {
         throw new Error(error.detail || 'Failed to delete instance')
       }
 
-      // console.log('Instance deleted:', instanceData.instance_id)
+      // console.log('Instance deleted:', instanceId)
       setInstanceData(null)
       setInstanceCreatedAt(null)
       setTimeRemaining(0)
@@ -134,22 +184,9 @@ export default function Playground() {
   }
 
   // Delete instance when component unmounts (page closes or navigates away)
-  useEffect(() => {
-    return () => {
-      if (instanceData && instanceData.instance_id) {
-        const deleteUrl = `${BACKEND_API_URL}/api/instances/${instanceData.instance_id}`
-        
-        fetch(deleteUrl, {
-          method: 'DELETE',
-          keepalive: true
-        }).catch(() => {
-          navigator.sendBeacon(deleteUrl)
-        })
-        
-        // console.log('Deleting instance:', instanceData.instance_id)
-      }
-    }
-  }, [instanceData])
+  // NOTE:
+  // We intentionally do NOT auto-terminate on unmount.
+  // In dev (React StrictMode / hot reload), unmounts can happen unexpectedly and would terminate instances.
 
   if (modelsLoading) {
     return (
@@ -180,8 +217,21 @@ export default function Playground() {
     if (!input.trim()) return
     
     // Check if instance is available
-    if (!instanceData || !instanceData.public_ip) {
+    const publicIp = instancePublicIp
+    const directPredictUrl =
+      instanceData?.predict_url ||
+      instanceData?.predictUrl ||
+      (publicIp ? `http://${publicIp}:8000/predict` : null)
+    if (!instanceId) {
       setOutput("Error: No instance available. Please create an instance first.")
+      return
+    }
+    if (instanceStatus !== "ready") {
+      setOutput(`Instance is still provisioning (status: ${instanceStatus || "unknown"}). Please wait until it becomes ready.`)
+      return
+    }
+    if (!directPredictUrl) {
+      setOutput("Instance is not ready yet (no predict URL). Please wait a bit and try again.")
       return
     }
     
@@ -189,20 +239,41 @@ export default function Playground() {
     setOutput("")
     
     try {
-      const predictUrl = `http://${instanceData.public_ip}:8000/predict`
-      
-      const response = await fetch(predictUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: input
-        }),
-      })
+      // Prefer direct call to instance (public 8000) for lowest latency.
+      // Fallback to backend proxy if direct call is blocked by browser CORS/mixed-content.
+      const payload = { text: input }
+
+      let response: Response | null = null
+      if (directPredictUrl) {
+        try {
+          response = await fetch(directPredictUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+        } catch {
+          response = null
+        }
+      }
+
+      // If direct call failed OR returned non-OK (e.g. 404), try proxy as fallback.
+      if (!response || !response.ok) {
+        response = await fetch(`${BACKEND_API_URL}/api/instances/${instanceId}/predict`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+      }
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        let msg = `HTTP error! status: ${response.status}`
+        try {
+          const err = await response.json()
+          msg = err?.error || err?.detail || msg
+        } catch {
+          // ignore
+        }
+        throw new Error(msg)
       }
 
       const data = await response.json()
@@ -282,7 +353,7 @@ export default function Playground() {
                     </div>
                     <Button 
                       onClick={handleCreateInstance}
-                      disabled={isCreatingInstance || !model.objectId}
+                      disabled={isCreatingInstance}
                       className="ml-4 border-2 border-primary/70 hover:border-primary hover:bg-primary/5 hover:shadow-md transition-all duration-150 ease-out transform hover:-translate-y-0.5"
                     >
                       {isCreatingInstance ? (
@@ -310,22 +381,29 @@ export default function Playground() {
               )}
               
               {instanceData && (
-                <div className="mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                <div className="mt-4 p-4 bg-muted/30 border border-border/50 rounded-lg">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-green-600">Instance Ready</p>
+                        <p className="font-medium">
+                          {instanceStatus === "ready" ? "Instance Ready" : "Instance Provisioning"}
+                        </p>
                         <Badge variant="outline" className="text-xs">
                           <Clock className="w-3 h-3 mr-1" />
                           {formatTimeRemaining(timeRemaining)}
                         </Badge>
+                        {instanceStatus && (
+                          <Badge variant="secondary" className="text-xs">
+                            {instanceStatus}
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Instance ID: {instanceData.instance_id}
+                        Instance ID: {instanceData.instance_id || instanceData.instanceId}
                       </p>
-                      {instanceData.public_ip && (
+                      {(instanceData.public_ip || instanceData.publicIp) && (
                         <p className="text-sm text-muted-foreground">
-                          IP: {instanceData.public_ip}
+                          IP: {instanceData.public_ip || instanceData.publicIp}
                         </p>
                       )}
                     </div>
@@ -375,7 +453,7 @@ export default function Playground() {
                   Input
                   <Button 
                     onClick={runModel} 
-                    disabled={!input.trim() || isRunning}
+                    disabled={!input.trim() || isRunning || !isInstanceReady}
                     className="ml-2"
                   >
                     <Play className="w-4 h-4 mr-2" />

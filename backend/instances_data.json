@@ -1,0 +1,45 @@
+{
+  "i-0254b929c71be5246": {
+    "instanceId": "i-0254b929c71be5246",
+    "blob_id": "XCWkb4y3YUo32CplgrdbnJXBVrjRNbDv1SttNdwlCLA",
+    "object_id": "0x9c2ad84e7ec52b6a0e1c79b12f247109cdde9871df43bfb95f488c20ae4546c4",
+    "status": "waiting_for_instance",
+    "publicIp": null,
+    "createdAt": "2025-12-17T17:10:10.953Z",
+    "error": null
+  },
+  "i-0336db715ddf52b12": {
+    "instanceId": "i-0336db715ddf52b12",
+    "blob_id": "XCWkb4y3YUo32CplgrdbnJXBVrjRNbDv1SttNdwlCLA",
+    "object_id": "0x9c2ad84e7ec52b6a0e1c79b12f247109cdde9871df43bfb95f488c20ae4546c4",
+    "status": "waiting_for_instance",
+    "publicIp": null,
+    "createdAt": "2025-12-17T17:10:17.861Z",
+    "error": null
+  },
+  "i-0668ca8062546997c": {
+    "instanceId": "i-0668ca8062546997c",
+    "blob_id": "dummy",
+    "object_id": null,
+    "status": "waiting_for_instance",
+    "publicIp": null,
+    "createdAt": "2025-12-17T17:16:43.435Z",
+    "error": null
+  },
+  "i-062d53eff5ff870f0": {
+    "status": "failed",
+    "error": "Model download/start failed"
+  },
+  "i-0a7302d86ab20bfe8": {
+    "instanceId": "i-0a7302d86ab20bfe8",
+    "blob_id": "3aGHkyxilofHuajdXdgrK22ln5uiX4guT862rPJ2tNo",
+    "object_id": "0x37ca3a6543a1f4cf221e19b05d7c48d4a005e7c5300f13c38e31539532cce0aa",
+    "status": "ready",
+    "publicIp": "3.90.200.41",
+    "public_ip": "3.90.200.41",
+    "createdAt": "2025-12-17T20:21:33.812Z",
+    "error": null,
+    "predict_url": "http://3.90.200.41:8000/predict",
+    "predictUrl": "http://3.90.200.41:8000/predict"
+  }
+}

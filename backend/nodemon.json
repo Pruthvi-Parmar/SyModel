@@ -1,0 +1,7 @@
+{
+  "watch": ["src"],
+  "ignore": ["instances_data.json", "instances_data*.json"],
+  "ext": "js,json"
+}
+
+
