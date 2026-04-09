@@ -17,6 +17,7 @@ export function Navbar() {
   const navItems = [
     { href: "/upload", label: "Upload" },
     { href: "/models", label: "Models" },
+    { href: "/webllm", label: "WebLLM" },
     { href: "/about", label: "About" },
   ]
 
