@@ -41,5 +41,45 @@
     "error": null,
     "predict_url": "http://3.90.200.41:8000/predict",
     "predictUrl": "http://3.90.200.41:8000/predict"
+  },
+  "job_1767167171660": {
+    "instanceId": "job_1767167171660",
+    "blob_id": "69f7QViZPYy-S01j1fb_cbsW-jlnUN0mEBEWQG5-uW0",
+    "object_id": "0xc523451517711a143f3600da2e997d26ef29b4849e2a5d7df8a954aeb5d10a37",
+    "status": "ready",
+    "predict_url": "http://localhost:33534/predict",
+    "createdAt": "2025-12-31T07:46:11.660Z",
+    "error": null,
+    "endpoint": "http://localhost:33534"
+  },
+  "job_1767167578180": {
+    "instanceId": "job_1767167578180",
+    "blob_id": "XCWkb4y3YUo32CplgrdbnJXBVrjRNbDv1SttNdwlCLA",
+    "object_id": null,
+    "status": "ready",
+    "predict_url": "http://localhost:39198/predict",
+    "createdAt": "2025-12-31T07:52:58.180Z",
+    "error": null,
+    "endpoint": "http://localhost:39198"
+  },
+  "job_1767169048038": {
+    "instanceId": "job_1767169048038",
+    "blob_id": "69f7QViZPYy-S01j1fb_cbsW-jlnUN0mEBEWQG5-uW0",
+    "object_id": null,
+    "status": "ready",
+    "predict_url": "http://localhost:35403/predict",
+    "createdAt": "2025-12-31T08:17:28.039Z",
+    "error": null,
+    "endpoint": "http://localhost:35403"
+  },
+  "job_1767169673231": {
+    "instanceId": "job_1767169673231",
+    "blob_id": "69f7QViZPYy-S01j1fb_cbsW-jlnUN0mEBEWQG5-uW0",
+    "object_id": null,
+    "status": "ready",
+    "predict_url": "http://localhost:37972/predict",
+    "createdAt": "2025-12-31T08:27:53.231Z",
+    "error": null,
+    "endpoint": "http://localhost:37972"
   }
 }

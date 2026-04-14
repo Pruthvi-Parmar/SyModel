@@ -6,6 +6,7 @@ import Models from './pages/Models'
 import Upload from './pages/Upload'
 import About from './pages/About'
 import Playground from './pages/Playground'
+import WebLLMChat from './pages/WebLLM'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/models" element={<Models />} />
           <Route path="/models/:id/playground" element={<Playground />} />
           <Route path="/upload" element={<Upload />} />
+          <Route path="/webllm" element={<WebLLMChat />} />
           <Route path="/about" element={<About />} />
         </Routes>
       </Web3Provider>
