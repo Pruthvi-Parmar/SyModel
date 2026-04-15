@@ -8,6 +8,14 @@ import About from './pages/About'
 import Playground from './pages/Playground'
 import WebLLMChat from './pages/WebLLM'
 
+/**
+ * Root application component that configures client-side routing, scroll handling, and Web3 context.
+ *
+ * The component renders a BrowserRouter with a ScrollToTop helper, wraps all routes in a Web3Provider,
+ * and registers the app's route-to-page mappings.
+ *
+ * @returns The root React element containing the router, providers, and application routes.
+ */
 function App() {
   return (
     <BrowserRouter>
