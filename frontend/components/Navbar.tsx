@@ -8,6 +8,13 @@ import { Button } from "@/components/ui/button"
 import { WalletModal } from "@/components/WalletModal"
 import { useEvmWallet } from "@/hooks/useEvmWallet"
 
+/**
+ * Renders the responsive site navigation including logo, links, a wallet connect button, and a wallet modal.
+ *
+ * The component shows desktop navigation on medium screens and up, a toggleable mobile menu below that breakpoint, and displays the connected wallet address when available.
+ *
+ * @returns The JSX element for the site navbar and its associated wallet modal.
+ */
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [showWalletModal, setShowWalletModal] = useState(false)

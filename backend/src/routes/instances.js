@@ -12,8 +12,15 @@ const router = express.Router()
 const WORKER_URL = "http://localhost:4001/run"
 
 /**
- * STEP-4 IMPLEMENTATION
- * Backend → Worker → Docker → bootstrap.sh
+ * Orchestrates provisioning of an instance by calling the worker and persisting the resulting endpoint.
+ *
+ * On success the instance record is updated to `ready` with `endpoint` and `predict_url`; on failure the
+ * instance record is updated to `failed` with an error message.
+ *
+ * @param {Object} params - Provisioning parameters.
+ * @param {string} params.instanceId - Unique job/instance identifier.
+ * @param {string} [params.blobId] - Optional blob identifier for the model artifact.
+ * @param {string} [params.objectId] - Optional object identifier for the model artifact.
  */
 async function provisionInstance({ instanceId, blobId, objectId }) {
   try {

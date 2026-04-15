@@ -49,6 +49,16 @@ interface ChatMessage {
 
 type EngineStatus = "idle" | "loading" | "ready" | "error"
 
+/**
+ * Renders the WebLLM chat page that manages model selection and loading, in-browser model initialization,
+ * chat history, streaming assistant responses, and related UI controls.
+ *
+ * The component handles WebGPU checks, dynamic model loading with progress updates, sending messages
+ * to the in-browser engine with streaming output, clearing browser caches/IndexedDB for retries,
+ * and UI state (status, progress, errors, input, and message list).
+ *
+ * @returns A JSX element for the WebLLM chat user interface page.
+ */
 export default function WebLLMChat() {
   const [selectedModel, setSelectedModel] = useState(AVAILABLE_MODELS[0].id)
   const [engineStatus, setEngineStatus] = useState<EngineStatus>("idle")
